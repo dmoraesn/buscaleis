@@ -22,14 +22,7 @@
                 <h2 class="text-xl font-semibold text-gray-800 mb-3">Ementa</h2>
                 <p class="text-gray-600 leading-relaxed">
                     {{-- Lógica de destaque aplicada aqui --}}
-                    @php
-                        $highlight = function ($text, $term) {
-                            if (!$term) return $text;
-                            $pattern = '/' . preg_quote($term, '/') . '/i';
-                            return preg_replace($pattern, '<mark class="bg-yellow-200 rounded px-1 py-0.5">\0</mark>', $text);
-                        };
-                    @endphp
-                    {!! $highlight($materia->ementa, $searchTerm) !!}
+                    @highlight($materia->ementa, $searchTerm)
                 </p>
 
                 @if($materia->categorias->isNotEmpty())

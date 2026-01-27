@@ -49,15 +49,7 @@
         </a>
 
         <p class="text-gray-600 leading-relaxed mb-4">
-            {{-- Função PHP inline para HIGHLIGHT --}}
-            @php
-                $highlight = function ($text, $term) {
-                    if (!$term) return $text;
-                    $pattern = '/' . preg_quote($term, '/') . '/i';
-                    return preg_replace($pattern, '<mark class="bg-yellow-300 rounded px-1">\0</mark>', $text);
-                };
-            @endphp
-            {!! $highlight(Str::limit($materia->ementa, 150), $searchTerm) !!}
+            @highlight(Str::limit($materia->ementa, 150), $searchTerm)
         </p>
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500">

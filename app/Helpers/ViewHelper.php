@@ -2,8 +2,6 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Str;
-
 class ViewHelper
 {
     /**
@@ -16,21 +14,32 @@ class ViewHelper
      */
     public static function highlightText(string $text, ?string $searchTerm = null): string
     {
+        $sanitizedText = e($text);
+
         // Se não houver termo de busca, retorna o texto original sem modificação.
         if (empty($searchTerm)) {
-            return $text;
+            return $sanitizedText;
         }
 
-        // Escapa caracteres especiais no termo de busca para evitar erros no Regex.
-        // O modificador 'i' torna a busca case-insensitive (não diferencia maiúsculas de minúsculas).
-        $pattern = '/' . preg_quote($searchTerm, '/') . '/i';
+        // Divide o termo de busca em palavras relevantes (ignorando espaços extras).
+        $terms = array_unique(array_filter(preg_split('/\s+/u', trim($searchTerm))));
 
-        // Substitui o termo encontrado pela mesma palavra, mas envolvida em uma tag <mark>
-        // A classe 'bg-yellow-200 rounded px-1' é do Tailwind CSS para o estilo do destaque.
-        // '\0' no regex representa a string exata que foi encontrada.
-        $highlightedText = preg_replace($pattern, '<mark class="bg-yellow-200 rounded px-1">\0</mark>', $text);
+        if (empty($terms)) {
+            return $sanitizedText;
+        }
+
+        // Monta uma expressão regular que considera todas as palavras buscadas (case insensitive).
+        $escapedTerms = array_map(fn ($term) => preg_quote($term, '/'), $terms);
+        $pattern = '/(' . implode('|', $escapedTerms) . ')/iu';
+
+        // Substitui cada ocorrência das palavras encontradas pela mesma palavra envolvida na tag <mark>.
+        $highlightedText = preg_replace_callback(
+            $pattern,
+            fn ($matches) => '<mark class="bg-yellow-200 rounded px-1">' . $matches[0] . '</mark>',
+            $sanitizedText
+        );
 
         // Retorna o texto com destaque ou o original se a substituição falhar.
-        return $highlightedText ?? $text;
+        return $highlightedText ?? $sanitizedText;
     }
 }
